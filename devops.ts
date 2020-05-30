@@ -1,13 +1,12 @@
 require("dotenv").config();
-module.exports = {
+export default {
   REGION: "us-east-1",
-  ROOT_DOMAIN: "nomad.house",
-  PROJECT_NAME: "nomad-custom-resources",
-  ROOT_OBJECT: "en/index.html",
+  PROJECT_NAME: "custom-resources",
   SUB_DOMAIN: "custom-resources",
+  ROOT_DOMAIN: "nomad.house",
+  ROOT_OBJECT: "en/index.html",
   ALLOW_NAKED: true,
   AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-  ALGOLIA_API_KEY: process.env.ALGOLIA_API_KEY,
   GITHUB_ACCESS_TOKEN: process.env.GITHUB_ACCESS_TOKEN
 };
