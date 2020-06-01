@@ -1,7 +1,7 @@
 {
   "name": "nomad-custom-resources",
   "version": "0.0.1",
-  "description": "TypeScript/Node.js - Boilerplate for creating, testing and deploying AWS Cloudformation, Lambda-backed, Custom Resources. Includes several examples and some useful resources that make (Enterprise, but works for everyone) deployments easier.",
+  "description": "TypeScript/Node.js - Boilerplate for creating, testing and deploying Lambda-backed, AWS Cloudformation Custom Resources. Includes several examples and some useful resources that make (Enterprise, but works for everyone) deployments easier.",
   "main": "index.js",
   "scripts": {
     "clean-build": "rm -rf build 2> /dev/null",
