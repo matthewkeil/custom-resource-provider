@@ -1,8 +1,8 @@
-import { Debug } from "../../src/utils";
+import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
-import { route53 } from "../../config";
-import { normalizeDomain } from "../normalizeDomain";
-import { DomainRecords } from "./DomainRecords";
+import { route53 } from "../../../config";
+import { normalizeDomain } from "../../normalizeDomain";
+import { DomainRecords } from "../recordSet/DomainRecords";
 import { getHostedZoneForDomain } from "./getHostedZoneForDomain";
 
 export type ZoneInfo = Partial<DomainRecords> & { HostedZoneId?: string };

@@ -23,20 +23,26 @@ export const NODE_ENV = process.env.NODE_ENV || "development";
 export const PROD = NODE_ENV === "production";
 export const TEST = NODE_ENV === "testing";
 
-const DIST = process.env.DIST_FOLDER || resolve(__dirname, "dist");
-const BUILD = process.env.BUILD_FOLDER || resolve(__dirname, "build");
+/**
+ * Build configuration
+ */
+const DIST = process.env.DIST_FOLDER || resolve(__dirname, "dist", "src");
+const BUILD = process.env.BUILD_FOLDER || resolve(__dirname, "build", "src");
 export const BUILD_FOLDER = PROD ? DIST : BUILD;
-export const FILENAME = process.env.BUNDLE_FILENAME || "index";
+export const FILENAME = process.env.BUNDLE_FILENAME || "handler";
 export const BUNDLE_PATH = resolve(...[BUILD_FOLDER, FILENAME + ".js"]);
-export const DLQ_FILENAME = process.env.BUNDLE_FILENAME || "deadLetterQue";
+export const DLQ_FILENAME = process.env.DLQ_FILENAME || "deadLetterQue";
 export const DLQ_PATH = resolve(...[BUILD_FOLDER, DLQ_FILENAME + ".js"]);
-
 try {
+  // this will throw in CI/CD. need try/catch
   if (!existsSync(BUILD_FOLDER)) {
     mkdirSync(BUILD_FOLDER);
   }
 } catch {}
 
+/**
+ * Deployment configuration
+ */
 export const BUCKET_NAME = process.env.PUBLIC_BUCKET || "nomad-devops";
 const BUCKET_PREFIX_PROD = process.env.BUCKET_PREFIX_PROD || "resources/custom";
 const BUCKET_PREFIX_TEST = process.env.BUCKET_PREFIX_TEST || "resources/testing";
@@ -64,7 +70,12 @@ export const getKey = (uuid?: string, testId?: string) => {
 export const getTemplateKey = () => {
   return `${BUCKET_PREFIX}/cloudformation`;
 };
+
+/**
+ * AWS Service Defaults
+ */
 export const LAMBDA_TIMEOUT = 300; // in seconds
+export const DELEGATION_SET_CALLER_REFERENCE = "nomad-devops-delegation-set";
 
 const AWS_SERVICE_CONFIG = {
   region: process.env.REGION || "us-east-1",

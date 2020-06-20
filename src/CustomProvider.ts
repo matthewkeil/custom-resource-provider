@@ -28,14 +28,14 @@ interface SuccessResponse {
 }
 export type Results = SuccessResponse | FailedResponse;
 
-export type CreateEventHandler = (
-  event: CloudFormationCustomResourceCreateEvent
+export type CreateEventHandler<T extends {} = {}> = (
+  event: CloudFormationCustomResourceCreateEvent & { ResourceProperties: T }
 ) => Promise<Results>;
-export type UpdateEventHandler = (
-  event: CloudFormationCustomResourceUpdateEvent
+export type UpdateEventHandler<T extends {} = {}> = (
+  event: CloudFormationCustomResourceUpdateEvent & { ResourceProperties: T }
 ) => Promise<Results>;
-export type DeleteEventHandler = (
-  event: CloudFormationCustomResourceDeleteEvent
+export type DeleteEventHandler<T extends {} = {}> = (
+  event: CloudFormationCustomResourceDeleteEvent & { ResourceProperties: T }
 ) => Promise<Results>;
 
 export interface CustomProviderParams {

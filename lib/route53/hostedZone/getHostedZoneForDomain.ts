@@ -1,7 +1,7 @@
-import { Debug } from "../../src/utils";
+import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
-import { route53 } from "../../config";
-import { normalizeDomain } from "../normalizeDomain";
+import { route53 } from "../../../config";
+import { normalizeDomain } from "../../normalizeDomain";
 
 export const getHostedZoneForDomain = async (domain: string) => {
   const hostedZone = await route53.listHostedZones().promise();

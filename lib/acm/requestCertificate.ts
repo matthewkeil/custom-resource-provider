@@ -34,7 +34,7 @@ export const requestCertificate = async ({
   debug("CertificateArn: ", CertificateArn);
   const { Certificate } = await acm.describeCertificate({ CertificateArn }).promise();
   debug("Certificate: ", Certificate);
-  const { Id = "" } = await getHostedZoneForDomain(DomainName);
+  const { Id = "" } = (await getHostedZoneForDomain(DomainName)) || {};
   debug("HostedZoneId", Id);
   const dnsValidationOptions = Certificate?.DomainValidationOptions?.filter(option => {
     if (option?.ValidationMethod?.toLowerCase() === "dns") return true;
@@ -43,7 +43,7 @@ export const requestCertificate = async ({
 
   for (const option of dnsValidationOptions || []) {
     await createCertRecordSet({
-      HostedZoneId: Id.split("/").pop(),
+      HostedZoneId: Id.split("/").pop() || "",
       recordSetName: `${option.ResourceRecord?.Name}`,
       recordSetValue: `${option.ResourceRecord?.Value}`
     });

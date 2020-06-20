@@ -53,7 +53,7 @@ it("build/deploy should be setup correctly", async done => {
   expect(!!uuid).toBeTruthy();
 
   const { ContentType, Body } = await s3.getObject({ Bucket, Key: zipKey }).promise();
-  const zip = await JSZip.loadAsync(Body);
+  const zip = await JSZip.loadAsync(Body as Buffer);
   expect(ContentType).toEqual("application/octet-stream");
 
   const testBundle = BUILD_FOLDER + sep + `${uuid}.zip`;

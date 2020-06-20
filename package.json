@@ -1,13 +1,13 @@
 {
   "name": "nomad-custom-resources",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "TypeScript/Node.js - Boilerplate for creating, testing and deploying Lambda-backed, AWS Cloudformation Custom Resources. Includes several examples and some useful resources that make (Enterprise, but works for everyone) deployments easier.",
-  "main": "index.js",
   "scripts": {
     "clean-build": "rm -rf build 2> /dev/null",
     "clean-nm": "rm -rf node_modules 2> /dev/null",
     "clean-prod": "npm run clean-nm && rm -rf dist 2> /dev/null",
-    "build": "npm run webpack",
+    "build": "node_modules/.bin/tsc --project tsconfig.json && npm run webpack",
+    "build-prod": "NODE_ENV=production npm run build",
     "debug": "npm run ts --inspect-brk",
     "deploy": "npm run ts bin/deploy",
     "deploy-prod": "npm run clean-prod && npm install && NODE_ENV=production npm run deploy",
@@ -19,8 +19,21 @@
     "webpack": "npm run ts node_modules/.bin/webpack"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Matthew Keil",
+  "license": "MIT",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/config.js",
+    "dist/config.d.ts",
+    "dist/templates/**/*", 
+    "dist/src/handler.js",
+    "dist/src/handler.d.ts",
+    "dist/src/deadLetterQue.js",
+    "dist/src/deadLetterQue.d.ts"
+  ],
+  "main": "dist/index.ts",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "shortid": "^2.2.15",
     "debug": "^4.1.1"

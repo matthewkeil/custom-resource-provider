@@ -1,17 +1,7 @@
 {
-  "include": [
-    "config.ts",
-    "webpack.config.ts",
-    "devops.ts",
-    "bin/**/*", 
-    "lib/**/*", 
-    "src/**/*",
-    "templates/**/*",
-    "test/**/*",
-    ],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "no_compile", "dist", "build"],
   "compilerOptions": {
-    "lib": ["ESNext", "ESNext.AsyncIterable", "ES2020"],
+    "lib": ["ESNext", "ESNext.AsyncIterable", "ES2020", "DOM"],
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -23,7 +13,7 @@
     "declaration": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "outDir": "build",
+    "outDir": "dist",
     "types": ["node", "jest"],
     "typeRoots": ["node_modules/@types"]
   }

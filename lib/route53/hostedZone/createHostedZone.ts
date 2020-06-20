@@ -1,9 +1,9 @@
-import { Debug } from "../../src/utils";
+import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
 import { Route53 } from "aws-sdk";
-import { route53 } from "../../config";
+import { route53 } from "../../../config";
 import { HostedZoneParams } from "./HostedZoneParams";
-import { getDelegationSet } from "./getDelegationSet";
+import { getDelegationSet } from "../delegationSet/deleteDelegationSet";
 import { getFullHostedZoneInfo } from "./getFullHostedZoneInfo";
 
 interface CreateHostedZoneParams {

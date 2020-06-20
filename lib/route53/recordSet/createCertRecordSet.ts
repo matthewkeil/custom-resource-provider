@@ -1,6 +1,6 @@
-import { Debug } from "../../src/utils";
+import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
-import { route53 } from "../../config";
+import { route53 } from "../../../config";
 
 interface CertRecordSetParams {
   HostedZoneId: string;

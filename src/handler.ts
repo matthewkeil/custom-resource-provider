@@ -3,13 +3,13 @@ const debug = Debug(__dirname, __filename);
 import { CloudFormationCustomResourceHandler } from "aws-lambda";
 import { CustomProvider } from "./CustomProvider";
 // import { testProviders } from "./providers/testProviders";
-import { recordSetProvider } from "./providers/RecordSetProvider";
-// import { hostedZoneProvider } from "./hostedZoneProvider";
-// import { certificateProvider } from "./certificateProvider";
-// import { certificateRequestProvider } from "./certificateRequestProvider";
+// import { recordSetProvider } from "../no_compile/RecordSetProvider";
+// import { hostedZoneProvider } from "../no_compile/hostedZoneProvider";
+// import { certificateProvider } from "../no_compile/certificateProvider";
+// import { certificateRequestProvider } from "../no_compile/certificateRequestProvider";
 
 const resourceProviders = {
-  RecordSet: recordSetProvider
+  // RecordSet: recordSetProvider,
   // HostedZone: hostedZoneProvider,
   // Certificate: certificateProvider,
   // CertificateRequest: certificateRequestProvider

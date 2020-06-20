@@ -1,8 +1,8 @@
-import { Debug } from "../../src/utils";
+import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
-import { route53 } from "../../config";
+import { route53 } from "../../../config";
 import { Route53 } from "aws-sdk";
-import { getHostedZoneForDomain } from "./getHostedZoneForDomain";
+import { getHostedZoneForDomain } from "../hostedZone/getHostedZoneForDomain";
 
 export interface HandleRecordSetParams extends Route53.ResourceRecordSet {
   RequestType: "Create" | "Update" | "Delete";

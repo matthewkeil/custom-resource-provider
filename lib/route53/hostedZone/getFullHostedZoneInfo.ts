@@ -1,7 +1,7 @@
-import { Debug } from "../../src/utils";
+import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
 import { Route53 } from "aws-sdk";
-import { route53 } from "../../config";
+import { route53 } from "../../../config";
 
 export const getFullHostedZoneInfo = async ({ Id }: { Id: string }) => {
   const { HostedZone, VPCs } = await route53.getHostedZone({ Id }).promise();
