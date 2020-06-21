@@ -2,7 +2,7 @@ import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
 import { route53 } from "../../../config";
 import { Route53 } from "aws-sdk";
-import { getHostedZoneForDomain } from "../hostedZone/getHostedZoneForDomain";
+import { getHostedZone } from "../hostedZone/getHostedZone";
 
 export interface HandleRecordSetParams extends Route53.ResourceRecordSet {
   RequestType: "Create" | "Update" | "Delete";
@@ -15,7 +15,7 @@ export const handleRecordSet = async (request: HandleRecordSetParams) => {
   let { HostedZoneId } = request;
   debug("HostedZoneId: ", HostedZoneId);
   if (!HostedZoneId) {
-    const response = await getHostedZoneForDomain(request.HostedZoneName || "");
+    const response = await getHostedZone({ domainName: `${request.HostedZoneName}` });
     HostedZoneId = response?.Id;
     debug("HostedZoneId: ", HostedZoneId);
   }

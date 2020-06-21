@@ -15,7 +15,7 @@ export const create: CreateEventHandler<CreateDelegationSetParams> = async event
   const { CallerRefernce, DomainName } = event.ResourceProperties;
   const { Id, NameServers } = await createDelegationSet({
     callerReference: CallerRefernce,
-    domain: DomainName
+    domainName: DomainName
   });
 
   return {

@@ -1,7 +1,7 @@
 import { Debug } from "../../src/utils";
 const debug = Debug(__dirname, __filename);
 import { ACM } from "aws-sdk";
-import { createCertRecordSet, getHostedZoneForDomain } from "../route53";
+import { createCertRecordSet, getHostedZone } from "../route53";
 import { acm } from "../../config";
 
 export const requestCertificate = async ({
@@ -34,7 +34,7 @@ export const requestCertificate = async ({
   debug("CertificateArn: ", CertificateArn);
   const { Certificate } = await acm.describeCertificate({ CertificateArn }).promise();
   debug("Certificate: ", Certificate);
-  const { Id = "" } = (await getHostedZoneForDomain(DomainName)) || {};
+  const { Id = "" } = (await getHostedZone({ domainName: DomainName })) || {};
   debug("HostedZoneId", Id);
   const dnsValidationOptions = Certificate?.DomainValidationOptions?.filter(option => {
     if (option?.ValidationMethod?.toLowerCase() === "dns") return true;

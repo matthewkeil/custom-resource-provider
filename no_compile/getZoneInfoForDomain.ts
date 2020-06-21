@@ -1,14 +1,14 @@
-import { Debug } from "../../../src/utils";
+import { Debug } from "../src/utils";
 const debug = Debug(__dirname, __filename);
-import { route53 } from "../../../config";
-import { normalizeDomain } from "../../normalizeDomain";
-import { DomainRecords } from "../recordSet/DomainRecords";
-import { getHostedZoneForDomain } from "./getHostedZoneForDomain";
+import { route53 } from "../config";
+import { normalizeDomain } from "../lib/normalizeDomain";
+import { DomainRecords } from "../lib/route53/recordSet/DomainRecords";
+import { getHostedZone } from "../lib/route53/hostedZone/getHostedZone";
 
 export type ZoneInfo = Partial<DomainRecords> & { HostedZoneId?: string };
 
 export const getZoneInfoForDomain = async (rootDomain: string): Promise<ZoneInfo> => {
-  const hostedZone = await getHostedZoneForDomain(rootDomain);
+  const hostedZone = await getHostedZone({ domainName: rootDomain });
   if (!hostedZone) return {};
 
   const records: ZoneInfo = {

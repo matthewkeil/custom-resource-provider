@@ -2,20 +2,25 @@ import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
 import { Route53 } from "aws-sdk";
 import { route53 } from "../../../config";
-import { HostedZoneParams } from "./HostedZoneParams";
-import { getFullHostedZoneInfo } from "./getFullHostedZoneInfo";
+import { getHostedZone } from "./getHostedZone";
+import { HostedZoneInfo } from "./HostedZoneInfo";
+import { HostedZoneParams } from "./createHostedZone";
 
-interface UpdateHostedZoneParams {
-  Id: string;
+export interface UpdateHostedZoneParams {
   OldResourceProperties: HostedZoneParams;
   ResourceProperties: HostedZoneParams;
 }
 
 export const updateHostedZone = async ({
-  Id,
   ResourceProperties,
   OldResourceProperties
-}: UpdateHostedZoneParams): Promise<HostedZoneParams> => {
+}: UpdateHostedZoneParams): Promise<HostedZoneInfo> => {
+  const hostedZone = await getHostedZone({ domainName: ResourceProperties.Name });
+  if (!hostedZone) {
+    throw new Error("could not find HostedZone associated with " + ResourceProperties.Name);
+  }
+  const { Id } = hostedZone;
+
   if (OldResourceProperties.Name !== ResourceProperties.Name) {
     throw new Error("cannot update the Name of a HostedZone");
   }
@@ -88,14 +93,12 @@ export const updateHostedZone = async ({
 
     for (const vpc of newVPCs) {
       if (!oldVPCs.has(vpc)) {
-        changes.push(
-          route53.associateVPCWithHostedZone({ HostedZoneId: Id, VPC: vpc }).promise()
-        );
+        changes.push(route53.associateVPCWithHostedZone({ HostedZoneId: Id, VPC: vpc }).promise());
       }
     }
 
     await Promise.all(changes);
   }
 
-  return await getFullHostedZoneInfo({ Id });
+  return (await getHostedZone({ id: Id })) as HostedZoneInfo;
 };

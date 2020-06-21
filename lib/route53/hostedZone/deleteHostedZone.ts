@@ -2,12 +2,22 @@ import { Debug } from "../../../src/utils";
 const debug = Debug(__dirname, __filename);
 import { Route53 } from "aws-sdk";
 import { route53 } from "../../../config";
+import { HostedZoneParams } from "./createHostedZone";
+import { getHostedZone } from "./getHostedZone";
 
-interface DeleteHostedZoneParams {
-  Id: string;
+export interface DeleteHostedZoneParams {
+  ResourceProperties: HostedZoneParams;
 }
 
-export const deleteHostedZone = async ({ Id }: DeleteHostedZoneParams): Promise<void> => {
+export const deleteHostedZone = async ({
+  ResourceProperties
+}: DeleteHostedZoneParams): Promise<void> => {
+  const hostedZone = await getHostedZone({ domainName: ResourceProperties.Name });
+  if (!hostedZone) {
+    throw new Error("could not find HostedZone associated with " + ResourceProperties.Name);
+  }
+  const { Id } = hostedZone;
+
   const { VPCs = [] } = await route53.getHostedZone({ Id }).promise();
   for (const vpc of VPCs) {
     debug("deleting vpc association: ", vpc);

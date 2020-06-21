@@ -32,16 +32,19 @@ export type CreateEventHandler<T extends {} = {}> = (
   event: CloudFormationCustomResourceCreateEvent & { ResourceProperties: T }
 ) => Promise<Results>;
 export type UpdateEventHandler<T extends {} = {}> = (
-  event: CloudFormationCustomResourceUpdateEvent & { ResourceProperties: T }
+  event: CloudFormationCustomResourceUpdateEvent & {
+    ResourceProperties: T;
+    OldResourceProperties: T;
+  }
 ) => Promise<Results>;
 export type DeleteEventHandler<T extends {} = {}> = (
   event: CloudFormationCustomResourceDeleteEvent & { ResourceProperties: T }
 ) => Promise<Results>;
 
 export interface CustomProviderParams {
-  create: CreateEventHandler;
-  update: UpdateEventHandler;
-  delete: DeleteEventHandler;
+  create: CreateEventHandler<any>;
+  update: UpdateEventHandler<any>;
+  delete: DeleteEventHandler<any>;
 }
 
 interface SendResponseParams {
@@ -144,9 +147,9 @@ export class CustomProvider {
   }
 
   private _send = send;
-  private create: CreateEventHandler;
-  private update: UpdateEventHandler;
-  private delete: DeleteEventHandler;
+  private create: CreateEventHandler<any>;
+  private update: UpdateEventHandler<any>;
+  private delete: DeleteEventHandler<any>;
 
   constructor(params: CustomProviderParams) {
     debug("constructor params: ", { params });
