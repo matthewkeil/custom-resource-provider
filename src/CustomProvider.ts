@@ -14,7 +14,8 @@ import {
   CloudFormationCustomResourceSuccessResponse,
   Context
 } from "aws-lambda";
-import { PROD } from "../config";
+
+const PROD = process.env.NODE_ENV === "production";
 
 interface FailedResponse {
   Status: "FAILED";

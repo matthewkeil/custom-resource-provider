@@ -1,4 +1,4 @@
-import { Debug } from "../utils";
+import { Debug } from "./utils";
 const debug = Debug(__dirname, __filename);
 import { CloudFormationCustomResourceEvent } from "aws-lambda";
 import {
@@ -6,7 +6,7 @@ import {
   CreateEventHandler,
   UpdateEventHandler,
   DeleteEventHandler
-} from "../CustomProvider";
+} from "./CustomProvider";
 
 const hanldleEvent = (params?: { throwErr?: boolean; error?: boolean }) => async (
   event: CloudFormationCustomResourceEvent
