@@ -1,6 +1,6 @@
 {
   "name": "custom-resource-provider",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "TypeScript/Node.js - Boilerplate for creating, testing and deploying Lambda-backed, AWS Cloudformation Custom Resources. Includes several examples and some useful resources that make (Enterprise, but works for everyone) deployments easier.",
   "scripts": {
     "clean:build": "rm -rf build 2> /dev/null",
@@ -21,7 +21,7 @@
   "author": "Matthew Keil",
   "license": "MIT",
   "files": ["dist"],
-  "main": "dist/index.ts",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
     "shortid": "^2.2.15",
