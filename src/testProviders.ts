@@ -2,11 +2,11 @@ import { Debug } from "./utils";
 const debug = Debug(__dirname, __filename);
 import { CloudFormationCustomResourceEvent } from "aws-lambda";
 import {
-  CustomProvider,
+  CustomResourceProvider,
   CreateEventHandler,
   UpdateEventHandler,
   DeleteEventHandler
-} from "./CustomProvider";
+} from "./CustomResourceProvider";
 
 const hanldleEvent = (params?: { throwErr?: boolean; error?: boolean }) => async (
   event: CloudFormationCustomResourceEvent
@@ -28,17 +28,17 @@ const hanldleEvent = (params?: { throwErr?: boolean; error?: boolean }) => async
   return response;
 };
 
-const SuccessProvider = new CustomProvider({
+const SuccessProvider = new CustomResourceProvider({
   create: hanldleEvent() as CreateEventHandler,
   update: hanldleEvent() as UpdateEventHandler,
   delete: hanldleEvent() as DeleteEventHandler
 });
-const ErrorProvider = new CustomProvider({
+const ErrorProvider = new CustomResourceProvider({
   create: hanldleEvent({ error: true }) as CreateEventHandler,
   update: hanldleEvent({ error: true }) as UpdateEventHandler,
   delete: hanldleEvent({ error: true }) as DeleteEventHandler
 });
-const ThrowErrorProvider = new CustomProvider({
+const ThrowErrorProvider = new CustomResourceProvider({
   create: hanldleEvent({ throwErr: true, error: true }) as CreateEventHandler,
   update: hanldleEvent({ throwErr: true, error: true }) as UpdateEventHandler,
   delete: hanldleEvent({ throwErr: true, error: true }) as DeleteEventHandler

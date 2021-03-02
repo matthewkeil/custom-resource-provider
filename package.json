@@ -1,12 +1,13 @@
 {
   "name": "custom-resource-provider",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "TypeScript/Node.js - Boilerplate for creating, testing and deploying Lambda-backed, AWS Cloudformation Custom Resources. Includes several examples and some useful resources that make (Enterprise, but works for everyone) deployments easier.",
   "scripts": {
     "clean:build": "rm -rf build 2> /dev/null",
     "clean:nm": "rm -rf node_modules 2> /dev/null",
     "clean:prod": "npm run clean-nm && rm -rf dist 2> /dev/null",
     "build": "rm -rf dist && node_modules/.bin/tsc --project tsconfig.build.json",
+    "build:prod": "rm -rf dist && NODE_ENV=production node_modules/.bin/tsc --project tsconfig.build.json",
     "debug": "npm run ts --inspect-brk",
     "deploy": "npm run ts bin/deploy",
     "deploy:prod": "npm run clean-prod && npm install && NODE_ENV=production npm run deploy",

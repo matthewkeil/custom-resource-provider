@@ -42,7 +42,7 @@ export type DeleteEventHandler<T extends {} = {}> = (
   event: CloudFormationCustomResourceDeleteEvent & { ResourceProperties: T }
 ) => Promise<Results>;
 
-export interface CustomProviderParams {
+export interface CustomResourceProviderParams {
   create: CreateEventHandler<any>;
   update: UpdateEventHandler<any>;
   delete: DeleteEventHandler<any>;
@@ -90,17 +90,17 @@ export function send({ url, data }: SendResponseParams) {
   });
 }
 
-const defaultHandler = (type: keyof CustomProviderParams) => async (): Promise<Results> => ({
+const defaultHandler = (type: keyof CustomResourceProviderParams) => async (): Promise<Results> => ({
   Status: "FAILED",
   Reason: `${type} handler is not implemented`
 });
 
-type CustomProviderHandler = (
+type CustomResourceProviderHandler = (
   event: CloudFormationCustomResourceEvent,
   context?: Context
 ) => Promise<HandlerResponse>;
 
-export class CustomProvider {
+export class CustomResourceProvider {
   public static prepareResponse(
     event: CloudFormationCustomResourceEvent,
     results: Results
@@ -143,7 +143,7 @@ export class CustomProvider {
     Reason: string;
   }) {
     debug("handleError: ", { event, Reason });
-    const response = CustomProvider.prepareResponse(event, { Status: "FAILED", Reason });
+    const response = CustomResourceProvider.prepareResponse(event, { Status: "FAILED", Reason });
     return send({ url: event.ResponseURL, data: JSON.stringify(response) });
   }
 
@@ -152,7 +152,7 @@ export class CustomProvider {
   private update: UpdateEventHandler<any>;
   private delete: DeleteEventHandler<any>;
 
-  constructor(params: CustomProviderParams) {
+  constructor(params: CustomResourceProviderParams) {
     debug("constructor params: ", { params });
     const { create, update, delete: _delete } = params || {};
     /**
@@ -176,12 +176,12 @@ export class CustomProvider {
     Object.freeze(this);
   }
 
-  public handle: CustomProviderHandler = (event, context) =>
+  public handle: CustomResourceProviderHandler = (event, context) =>
     new Promise<HandlerResponse>(async resolve => {
       let timer: undefined | NodeJS.Timeout;
       if (!!context) {
         timer = setTimeout(async () => {
-          const res = CustomProvider.prepareResponse(event, {
+          const res = CustomResourceProvider.prepareResponse(event, {
             Status: "FAILED",
             Reason: "resource provider timed out"
           });
@@ -210,10 +210,10 @@ export class CustomProvider {
             };
         }
         debug({ results });
-        response = CustomProvider.prepareResponse(event, results as Results);
+        response = CustomResourceProvider.prepareResponse(event, results as Results);
       } catch (err) {
         debug({ err });
-        response = CustomProvider.prepareResponse(event, {
+        response = CustomResourceProvider.prepareResponse(event, {
           Status: "FAILED",
           Reason: PROD ? "unknown error occured" : err.message
         });

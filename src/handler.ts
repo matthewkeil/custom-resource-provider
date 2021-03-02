@@ -1,11 +1,11 @@
 import { Debug } from "./utils";
 const debug = Debug(__dirname, __filename);
 import { CloudFormationCustomResourceHandler } from "aws-lambda";
-import { CustomProvider } from "./CustomProvider";
+import { CustomResourceProvider } from "./CustomResourceProvider";
 import { testProviders } from "./testProviders";
 
 export const buildHandler = (resources: {
-  [resource: string]: CustomProvider;
+  [resource: string]: CustomResourceProvider;
 }): CloudFormationCustomResourceHandler => {
   type Resource = keyof typeof resources;
   const resourceTypes = new Set<Resource>(Object.keys(resources) as Resource[]);
@@ -18,7 +18,7 @@ export const buildHandler = (resources: {
       return debug({ results });
     }
 
-    const response = await CustomProvider.handleError({
+    const response = await CustomResourceProvider.handleError({
       event,
       Reason: "NomadDevops doesn't have that kind of custom resource"
     });
