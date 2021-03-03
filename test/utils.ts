@@ -1,5 +1,5 @@
-import { Debug } from "../src/utils";
-const debug = Debug(__dirname, __filename);
+import { Debug } from "../src/debug";
+const debug = Debug();
 import { generate as Generate } from "shortid";
 const generate = () => Generate().replace(/[-_]/g, `${Math.floor(Math.random() * 10)}`);
 import { s3, BUCKET_NAME, LAMBDA_TIMEOUT, getTemplateKey, getKey, cloudformation } from "../config";

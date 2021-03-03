@@ -1,61 +1,28 @@
-import { Debug } from "./utils";
-const debug = Debug(__dirname, __filename);
+import { Debug } from "./debug";
+const debug = Debug();
 import { parse } from "url";
 import { request } from "https";
 import { generate as Generate } from "shortid";
 const generate = () => Generate().replace(/[-_]/g, `${Math.floor(Math.random() * 10)}`);
 import {
-  CloudFormationCustomResourceCreateEvent,
   CloudFormationCustomResourceUpdateEvent,
-  CloudFormationCustomResourceDeleteEvent,
-  CloudFormationCustomResourceEvent,
   CloudFormationCustomResourceResponse,
+  CloudFormationCustomResourceEvent,
   CloudFormationCustomResourceFailedResponse,
   CloudFormationCustomResourceSuccessResponse,
   Context
 } from "aws-lambda";
-
-const PROD = process.env.NODE_ENV === "production";
-
-interface FailedResponse {
-  Status: "FAILED";
-  Reason?: string;
-  NoEcho?: boolean;
-}
-interface SuccessResponse {
-  Status: "SUCCESS";
-  NoEcho?: boolean;
-  Data?: { [key: string]: string };
-}
-export type Results = SuccessResponse | FailedResponse;
-
-export type CreateEventHandler<T extends {} = {}> = (
-  event: CloudFormationCustomResourceCreateEvent & { ResourceProperties: T }
-) => Promise<Results>;
-export type UpdateEventHandler<T extends {} = {}> = (
-  event: CloudFormationCustomResourceUpdateEvent & {
-    ResourceProperties: T;
-    OldResourceProperties: T;
-  }
-) => Promise<Results>;
-export type DeleteEventHandler<T extends {} = {}> = (
-  event: CloudFormationCustomResourceDeleteEvent & { ResourceProperties: T }
-) => Promise<Results>;
-
-export interface CustomResourceProviderParams {
-  create: CreateEventHandler<any>;
-  update: UpdateEventHandler<any>;
-  delete: DeleteEventHandler<any>;
-}
-
-interface SendResponseParams {
-  url: string;
-  data: string;
-}
-interface HandlerResponse {
-  statusCode: number;
-  data?: CloudFormationCustomResourceResponse;
-}
+import {
+  CustomResourceProviderParams,
+  SendResponseParams,
+  FailedResponse,
+  CreateEventHandler,
+  UpdateEventHandler,
+  DeleteEventHandler,
+  HandlerResponse,
+  Response,
+  SuccessResponse
+} from "./interfaces";
 
 export function send({ url, data }: SendResponseParams) {
   return new Promise<HandlerResponse>((resolve, reject) => {
@@ -74,14 +41,12 @@ export function send({ url, data }: SendResponseParams) {
         }
       },
       response => {
-        debug("response: ", response);
         resolve({ statusCode: response.statusCode || 500 });
       }
     );
-    debug("req: ", req);
 
     req.on("error", err => {
-      debug(err);
+      debug({ message: "ERROR: req.on('error') in send()", err });
       reject(err);
     });
 
@@ -90,34 +55,36 @@ export function send({ url, data }: SendResponseParams) {
   });
 }
 
-const defaultHandler = (type: keyof CustomResourceProviderParams) => async (): Promise<Results> => ({
+const defaultHandler = (type: keyof CustomResourceProviderParams) => async (): Promise<
+  FailedResponse
+> => ({
   Status: "FAILED",
   Reason: `${type} handler is not implemented`
 });
 
-type CustomResourceProviderHandler = (
-  event: CloudFormationCustomResourceEvent,
-  context?: Context
-) => Promise<HandlerResponse>;
-
 export class CustomResourceProvider {
   public static prepareResponse(
     event: CloudFormationCustomResourceEvent,
-    results: Results
+    results: Response
   ): CloudFormationCustomResourceResponse {
-    const {
-      RequestId,
-      LogicalResourceId,
-      StackId,
-      PhysicalResourceId
-    } = event as CloudFormationCustomResourceUpdateEvent;
+    let PhysicalResourceId: string;
+    if (results.hasOwnProperty("PhysicalResourceId")) {
+      // if developer returns a value from handler use that
+      PhysicalResourceId = (results as SuccessResponse).PhysicalResourceId;
+    } else if (event.hasOwnProperty("PhysicalResourceId")) {
+      // otherwise use the value that is on the event if it exists (same resource was updated)
+      PhysicalResourceId = (event as CloudFormationCustomResourceUpdateEvent).PhysicalResourceId;
+    } else {
+      // set to default for creation events where no value is returned from handler
+      PhysicalResourceId = `${event.ResourceType.split("::").pop()}-${generate()}`;
+    }
+
     const response: Partial<CloudFormationCustomResourceResponse> = {
-      RequestId,
-      LogicalResourceId,
-      StackId,
-      Status: results.Status || "FAILED",
-      PhysicalResourceId:
-        PhysicalResourceId || `NomadDevops-${event.ResourceType.split("::").pop()}-${generate()}`
+      PhysicalResourceId,
+      RequestId: event.RequestId,
+      LogicalResourceId: event.LogicalResourceId,
+      StackId: event.StackId,
+      Status: results.Status || "FAILED"
     };
 
     if (response.Status === "FAILED") {
@@ -127,10 +94,13 @@ export class CustomResourceProvider {
       return response as CloudFormationCustomResourceFailedResponse;
     }
 
-    if (event.RequestType !== "Delete" && results.hasOwnProperty("NoEcho"))
-      response.NoEcho = results.NoEcho;
-    if (event.RequestType !== "Delete" && results.hasOwnProperty("Data"))
+    if (event.RequestType !== "Delete" && results.hasOwnProperty("NoEcho")) {
+      response.NoEcho = (results as SuccessResponse).NoEcho;
+    }
+
+    if (event.RequestType !== "Delete" && results.hasOwnProperty("Data")) {
       response.Data = (results as SuccessResponse).Data;
+    }
 
     return response as CloudFormationCustomResourceSuccessResponse;
   }
@@ -176,51 +146,49 @@ export class CustomResourceProvider {
     Object.freeze(this);
   }
 
-  public handle: CustomResourceProviderHandler = (event, context) =>
-    new Promise<HandlerResponse>(async resolve => {
-      let timer: undefined | NodeJS.Timeout;
-      if (!!context) {
-        timer = setTimeout(async () => {
-          const res = CustomResourceProvider.prepareResponse(event, {
-            Status: "FAILED",
-            Reason: "resource provider timed out"
-          });
-          resolve(await this._send({ url: event.ResponseURL, data: JSON.stringify(res) }));
-        }, context.getRemainingTimeInMillis() - 1000);
-      }
+  public async handle(event: CloudFormationCustomResourceEvent, context: Context): Promise<void> {
+    const timer = setTimeout(() => {
+      const res = CustomResourceProvider.prepareResponse(event, {
+        Status: "FAILED",
+        Reason: "resource provider timed out"
+      });
+      this._send({ url: event.ResponseURL, data: JSON.stringify(res) }).catch(err =>
+        CustomResourceProvider.handleError(err)
+      );
+    }, context.getRemainingTimeInMillis() - 1000);
 
-      let response!: CloudFormationCustomResourceResponse;
-      try {
-        debug({ event });
-        let results: Results;
-        switch (event.RequestType) {
-          case "Create":
-            results = await this.create(event);
-            break;
-          case "Update":
-            results = await this.update(event);
-            break;
-          case "Delete":
-            results = await this.delete(event);
-            break;
-          default:
-            results = {
-              Status: "FAILED",
-              Reason: "invalid event.RequestType"
-            };
-        }
-        debug({ results });
-        response = CustomResourceProvider.prepareResponse(event, results as Results);
-      } catch (err) {
-        debug({ err });
-        response = CustomResourceProvider.prepareResponse(event, {
-          Status: "FAILED",
-          Reason: PROD ? "unknown error occured" : err.message
-        });
-      } finally {
-        debug({ response });
-        if (timer) clearTimeout(timer);
-        resolve(await this._send({ url: event.ResponseURL, data: JSON.stringify(response) }));
+    let response!: CloudFormationCustomResourceResponse;
+    try {
+      debug({ event });
+      let results: Response;
+      switch (event.RequestType) {
+        case "Create":
+          results = await this.create(event);
+          break;
+        case "Update":
+          results = await this.update(event);
+          break;
+        case "Delete":
+          results = await this.delete(event);
+          break;
+        default:
+          results = {
+            Status: "FAILED",
+            Reason: "invalid event.RequestType"
+          };
       }
-    });
+      debug({ results });
+      response = CustomResourceProvider.prepareResponse(event, results as Response);
+    } catch (err) {
+      console.log({ err });
+      response = CustomResourceProvider.prepareResponse(event, {
+        Status: "FAILED",
+        Reason: err.message
+      });
+    } finally {
+      debug({ response });
+      clearTimeout(timer);
+      await this._send({ url: event.ResponseURL, data: JSON.stringify(response) });
+    }
+  }
 }

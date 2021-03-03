@@ -1,5 +1,5 @@
-import { Debug } from "./utils";
-const debug = Debug(__dirname, __filename);
+import { Debug } from "./debug";
+const debug = Debug();
 import { CloudFormationCustomResourceEvent } from "aws-lambda";
 import { SNSHandler } from "aws-lambda";
 import { CustomResourceProvider, send } from "./CustomResourceProvider";

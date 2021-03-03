@@ -1,5 +1,5 @@
-import { Debug } from "../src/utils";
-const debug = Debug(__dirname, __filename);
+import { Debug } from "../src/debug";
+const debug = Debug();
 import { sep } from "path";
 import { unlink, writeFile } from "fs/promises";
 import { generate as Generate } from "shortid";

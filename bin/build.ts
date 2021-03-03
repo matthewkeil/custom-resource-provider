@@ -1,5 +1,5 @@
-import { Debug } from "../src/utils";
-const debug = Debug(__dirname, __filename);
+import { Debug } from "../src/debug";
+const debug = Debug();
 import { exec } from "child_process";
 import { PROD, TEST } from "../config";
 
