@@ -25,19 +25,19 @@ const hanldleEvent = (params?: { throwErr?: boolean; error?: boolean }) => async
 };
 
 const SuccessProvider = new CustomResourceProvider({
-  create: hanldleEvent() as CreateEventHandler,
-  update: hanldleEvent() as UpdateEventHandler,
-  delete: hanldleEvent() as DeleteEventHandler
+  create: hanldleEvent() as CreateEventHandler<any>,
+  update: hanldleEvent() as UpdateEventHandler<any>,
+  delete: hanldleEvent() as DeleteEventHandler<any>
 });
 const ErrorProvider = new CustomResourceProvider({
-  create: hanldleEvent({ error: true }) as CreateEventHandler,
-  update: hanldleEvent({ error: true }) as UpdateEventHandler,
-  delete: hanldleEvent({ error: true }) as DeleteEventHandler
+  create: hanldleEvent({ error: true }) as CreateEventHandler<any>,
+  update: hanldleEvent({ error: true }) as UpdateEventHandler<any>,
+  delete: hanldleEvent({ error: true }) as DeleteEventHandler<any>
 });
 const ThrowErrorProvider = new CustomResourceProvider({
-  create: hanldleEvent({ throwErr: true, error: true }) as CreateEventHandler,
-  update: hanldleEvent({ throwErr: true, error: true }) as UpdateEventHandler,
-  delete: hanldleEvent({ throwErr: true, error: true }) as DeleteEventHandler
+  create: hanldleEvent({ throwErr: true, error: true }) as CreateEventHandler<any>,
+  update: hanldleEvent({ throwErr: true, error: true }) as UpdateEventHandler<any>,
+  delete: hanldleEvent({ throwErr: true, error: true }) as DeleteEventHandler<any>
 });
 
 export const testProviders = {

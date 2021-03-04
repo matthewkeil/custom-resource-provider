@@ -55,14 +55,16 @@ export function send({ url, data }: SendResponseParams) {
   });
 }
 
-const defaultHandler = (type: keyof CustomResourceProviderParams) => async (): Promise<
-  FailedResponse
-> => ({
+const defaultHandler = (type: string) => async (): Promise<FailedResponse> => ({
   Status: "FAILED",
   Reason: `${type} handler is not implemented`
 });
 
-export class CustomResourceProvider {
+export class CustomResourceProvider<
+  T extends object = any,
+  U extends object = T,
+  V extends object = T
+> {
   public static prepareResponse(
     event: CloudFormationCustomResourceEvent,
     results: Response
@@ -122,7 +124,7 @@ export class CustomResourceProvider {
   private update: UpdateEventHandler<any>;
   private delete: DeleteEventHandler<any>;
 
-  constructor(params: CustomResourceProviderParams) {
+  constructor(params: CustomResourceProviderParams<T, U, V>) {
     debug("constructor params: ", { params });
     const { create, update, delete: _delete } = params || {};
     /**
@@ -163,13 +165,13 @@ export class CustomResourceProvider {
       let results: Response;
       switch (event.RequestType) {
         case "Create":
-          results = await this.create(event);
+          results = await this.create(event as any);
           break;
         case "Update":
-          results = await this.update(event);
+          results = await this.update(event as any);
           break;
         case "Delete":
-          results = await this.delete(event);
+          results = await this.delete(event as any);
           break;
         default:
           results = {

@@ -20,29 +20,33 @@ export interface SuccessResponse extends DeleteSuccessResponse {
 }
 
 export type CreateResponse = SuccessResponse | FailedResponse;
-export type CreateEventHandler<T extends object = any> = (
-  event: CloudFormationCustomResourceCreateEvent & { ResourceProperties: T }
+export type CreateEventHandler<T extends object> = (
+  event: {
+    ResourceProperties: T;
+  } & Omit<CloudFormationCustomResourceCreateEvent, "ResourceProperties">
 ) => Promise<CreateResponse>;
 
 export type UpdateResponse = SuccessResponse | FailedResponse;
-export type UpdateEventHandler<T extends object = any> = (
-  event: CloudFormationCustomResourceUpdateEvent & {
+export type UpdateEventHandler<T extends object> = (
+  event: Omit<CloudFormationCustomResourceUpdateEvent, "ResourceProperties"> & {
     ResourceProperties: T;
     OldResourceProperties: T;
   }
 ) => Promise<UpdateResponse>;
 
 export type DeleteResponse = DeleteSuccessResponse | FailedResponse;
-export type DeleteEventHandler<T extends object = any> = (
-  event: CloudFormationCustomResourceDeleteEvent & { ResourceProperties: T }
+export type DeleteEventHandler<T extends object> = (
+  event: Omit<CloudFormationCustomResourceDeleteEvent, "ResourceProperties"> & {
+    ResourceProperties: T;
+  }
 ) => Promise<DeleteResponse>;
 
 export type Response = CreateResponse | UpdateResponse | DeleteResponse;
 
 export interface CustomResourceProviderParams<
-  T extends object = any,
-  U extends object = T,
-  V extends object = T
+  T extends object,
+  U extends object,
+  V extends object
 > {
   create: CreateEventHandler<T>;
   update: UpdateEventHandler<U>;
